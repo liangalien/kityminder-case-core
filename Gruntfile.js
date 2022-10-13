@@ -94,14 +94,14 @@ module.exports = function(grunt) {
             },
             minimize: {
                 src: 'dist/kityminder.case.core.js',
-                dest: 'dist/kityminder.core.min.js'
+                dest: 'dist/kityminder.case.core.min.js'
             }
         },
 
         copy: {
             dist: {
                 src: 'src/kityminder.css',
-                dest: "dist/kityminder.core.css"
+                dest: "dist/kityminder.case.core.css"
             }
         }
 
