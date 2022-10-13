@@ -1,0 +1,54 @@
+{
+  "author": {
+    "name": "shiqiangliang",
+    "url": "https://github.com/liangalien/kityminder-case-core"
+  },
+  "bugs": {
+    "url": "https://github.com/liangalien/kityminder-case-core/issues"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "dependencies": {
+    "json-diff": "^0.5.2",
+    "kity": "^2.0.4",
+    "seajs": "^2.3.0"
+  },
+  "description": "KityMinder Core Implement For Case",
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.1.5",
+    "grunt": "~0.4.1",
+    "grunt-browser-sync": "^2.2.0",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.5.0",
+    "grunt-contrib-copy": "~0.8.2",
+    "grunt-contrib-uglify": "~0.4.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-module-dependence": "~0.2.1",
+    "grunt-replace": "~0.8.0",
+    "uglify-js": "^2.8.29"
+  },
+  "homepage": "https://github.com/liangalien/kityminder-case-core",
+  "keywords": [
+    "kityminder",
+    "kity",
+    "minder",
+    "svg",
+    "graphic",
+    "javascript"
+  ],
+  "main": "dist/kityminder.case.core.js",
+  "name": "kityminder-case-core",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liangalien/kityminder-case-core.git"
+  },
+  "scripts": {
+    "build": "grunt build",
+    "dev": "grunt dev"
+  },
+  "title": "Kity Minder Core For Case",
+  "version": "1.0.0"
+}
