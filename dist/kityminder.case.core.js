@@ -1,6 +1,6 @@
 /*!
  * ====================================================
- * Kity Minder Core For Case - v1.0.0 - 2022-10-13
+ * Kity Minder Core For Case - v1.1.0 - 2022-10-18
  * https://github.com/liangalien/kityminder-case-core
  * GitHub: git+https://github.com/liangalien/kityminder-case-core.git 
  * Copyright (c) 2022 shiqiangliang; Licensed 
@@ -2248,6 +2248,9 @@ _p[21] = {
                 this.data.updated = +new Date();
                 return this;
             },
+            removeData: function(key) {
+                return this.removeKey(key);
+            },
             /**
          * 设置节点的文本数据
          * @param {String} text 文本数据
@@ -2571,7 +2574,6 @@ _p[23] = {
             },
             _addRenderContainer: function() {
                 this._rc = new kity.Group().setId(utils.uuid("minder"));
-                this._rc.setAttr("transform", "translate(1000, 100)");
                 this._paper.addShape(this._rc);
             },
             renderTo: function(target) {
@@ -3545,7 +3547,7 @@ _p[31] = {
                     this.refresh(duration || 800);
                 },
                 getTemplate: function() {
-                    return this._template || "right";
+                    return this._template;
                 },
                 setTemplate: function(name) {
                     this._template = name || null;
@@ -3592,7 +3594,7 @@ _p[31] = {
                         minder.execCommand("camera");
                     },
                     queryValue: function(minder) {
-                        return minder.getTemplate() || "right";
+                        return minder.getTemplate();
                     }
                 })
             }
@@ -5490,16 +5492,22 @@ _p[49] = {
             var foreColor = dataColor || (node.isSelected() && selectedColor ? selectedColor : styleColor);
             var fontFamily = getNodeDataOrStyle(node, "font-family");
             var fontSize = getNodeDataOrStyle(node, "font-size");
+            var fontDecoration = getNodeDataOrStyle(node, "text-decoration");
             textGroup.fill(foreColor);
             textGroup.eachItem(function(index, item) {
                 item.setFont({
                     family: fontFamily,
                     size: fontSize
                 });
-                if (disabled === 1) {
-                    item.node.style.textDecoration = "line-through";
+                if (fontDecoration) {
+                    item.node.setAttribute("text-decoration", fontDecoration);
                 } else {
-                    item.node.style.textDecoration = "";
+                    item.node.removeAttribute("text-decoration");
+                }
+                if (disabled === 1) {
+                    item.container.node.setAttribute("text-decoration", "line-through");
+                } else {
+                    item.container.node.removeAttribute("text-decoration");
                 }
             });
         });
@@ -5614,6 +5622,35 @@ _p[49] = {
                     queryValue: function(km) {
                         var node = km.getSelectedNode();
                         if (node) return node.getData("font-size");
+                        return null;
+                    }
+                }),
+                fontdecoration: kity.createClass("fontdecorationCommand", {
+                    base: Command,
+                    execute: function(km, v) {
+                        var nodes = km.getSelectedNodes();
+                        nodes.forEach(function(n) {
+                            if (v) n.setData("text-decoration", v); else n.removeData("text-decoration");
+                            n.render();
+                            km.layout(300);
+                        });
+                    },
+                    queryState: function(km) {
+                        var nodes = km.getSelectedNodes(), result = 0;
+                        if (nodes.length === 0) {
+                            return -1;
+                        }
+                        nodes.forEach(function(n) {
+                            if (n && n.getData("text-decoration")) {
+                                result = 1;
+                                return false;
+                            }
+                        });
+                        return result;
+                    },
+                    queryValue: function(km) {
+                        var node = km.getSelectedNode();
+                        if (node) return node.getData("text-decoration");
                         return null;
                     }
                 })
