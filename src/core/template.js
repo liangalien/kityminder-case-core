@@ -28,7 +28,7 @@ define(function(require, exports, module) {
             },
 
             getTemplate: function() {
-                return this._template || 'right';
+                return this._template;
             },
 
             setTemplate: function(name) {
@@ -84,7 +84,7 @@ define(function(require, exports, module) {
                 },
 
                 queryValue: function(minder) {
-                    return minder.getTemplate() || 'right';
+                    return minder.getTemplate();
                 }
             })
         }

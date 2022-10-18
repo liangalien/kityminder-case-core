@@ -22,6 +22,7 @@ define(function(require, exports, module) {
         var foreColor = dataColor || (node.isSelected() && selectedColor ? selectedColor : styleColor);
         var fontFamily = getNodeDataOrStyle(node, 'font-family');
         var fontSize = getNodeDataOrStyle(node, 'font-size');
+        var fontDecoration = getNodeDataOrStyle(node, 'text-decoration');
 
         textGroup.fill(foreColor);
 
@@ -31,10 +32,16 @@ define(function(require, exports, module) {
                 'size': fontSize
             });
 
-            if (disabled === 1) {
-                item.node.style.textDecoration = 'line-through';
+            if (fontDecoration) {
+                item.node.setAttribute('text-decoration', fontDecoration)
             } else {
-                item.node.style.textDecoration = '';
+                item.node.removeAttribute('text-decoration')
+            }
+
+            if (disabled === 1) {
+                item.container.node.setAttribute('text-decoration', 'line-through');
+            } else {
+                item.container.node.removeAttribute('text-decoration');
             }
         });
     });
@@ -158,6 +165,42 @@ define(function(require, exports, module) {
                 queryValue: function(km) {
                     var node = km.getSelectedNode();
                     if (node) return node.getData('font-size');
+                    return null;
+                }
+            }),
+
+
+            'fontdecoration': kity.createClass('fontdecorationCommand', {
+                base: Command,
+
+                execute: function(km, v) {
+                    var nodes = km.getSelectedNodes();
+
+                    nodes.forEach(function(n) {
+                        if (v) n.setData('text-decoration', v);
+                        else n.removeData('text-decoration')
+
+                        n.render();
+                        km.layout(300);
+                    });
+                },
+                queryState: function(km) {
+                    var nodes = km.getSelectedNodes(),
+                        result = 0;
+                    if (nodes.length === 0) {
+                        return -1;
+                    }
+                    nodes.forEach(function(n) {
+                        if (n && n.getData('text-decoration')) {
+                            result = 1;
+                            return false;
+                        }
+                    });
+                    return result;
+                },
+                queryValue: function(km) {
+                    var node = km.getSelectedNode();
+                    if (node) return node.getData('text-decoration');
                     return null;
                 }
             })

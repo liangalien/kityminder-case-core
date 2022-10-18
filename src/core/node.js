@@ -161,6 +161,10 @@ define(function(require, exports, module) {
             return this;
         },
 
+        removeData: function(key) {
+            return this.removeKey(key);
+        },
+
         /**
          * 设置节点的文本数据
          * @param {String} text 文本数据

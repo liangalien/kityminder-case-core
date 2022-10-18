@@ -36,7 +36,6 @@ define(function(require, exports, module) {
 
         _addRenderContainer: function() {
             this._rc = new kity.Group().setId(utils.uuid('minder'));
-            this._rc.setAttr("transform", "translate(1000, 100)");
             this._paper.addShape(this._rc);
         },
 
