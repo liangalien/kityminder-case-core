@@ -207,7 +207,7 @@ define(function(require, exports, module) {
             var nodeType = nodes[0].getData("type");
             if (nodeType == typeMap.module.id || nodeType == typeMap.case.id) { //当前节点是模块或用例，父节点应是模块
                 data = {
-                    text: text || "模块名称",
+                    text: text || "目录名称",
                     type: typeMap.module.id,
                 };
             }
@@ -254,7 +254,7 @@ define(function(require, exports, module) {
             var typeMap = km.getTypeMap();
             var siblingType = sibling.getData("type");
             if (!text) {
-                if (siblingType == typeMap.module.id) text = "模块名称";
+                if (siblingType == typeMap.module.id) text = "目录名称";
                 else if (siblingType == typeMap.case.id) text = "用例名称";
                 else if (siblingType == typeMap.step.id) text = "操作步骤&预期结果";
             }
