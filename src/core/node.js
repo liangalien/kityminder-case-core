@@ -28,9 +28,7 @@ define(function(require, exports, module) {
             // 数据
             this.data = {
                 id: utils.guid(),
-                created: +new Date(),
-                path: '/',
-                id_path: '/'
+                path: null
             };
 
             // 绘图容器
@@ -226,13 +224,11 @@ define(function(require, exports, module) {
             }
             node.parent = this;
             node.data.parent_id = this.data.id;
-            if (node.parent.data.path === '/') {
-                node.data.path = '/' + node.parent.data.text;
-                node.data.id_path = '/' + node.parent.data.id;
+            if (node.parent.data.path) { //父节点有路径
+                node.data.path = node.parent.data.path + '/' + node.parent.data.id;
             }
-            else {
-                node.data.path = node.parent.data.path + '/' + node.parent.data.text;
-                node.data.id_path = node.parent.data.id_path + '/' + node.parent.data.id;
+            else { //父节点在根目录上
+                node.data.path = '/' + node.parent.data.id;
             }
             node.root = this.root;
 

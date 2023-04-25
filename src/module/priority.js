@@ -97,7 +97,8 @@ define(function(require, exports, module) {
             execute: function(km, value) {
                 var nodes = km.getSelectedNodes();
                 for (var i = 0; i < nodes.length; i++) {
-                    nodes[i].setData(PRIORITY_DATA, value || null).render();
+                    if (nodes[i].getData('type') == minder.getTypeMap().case.id)  //只有用例才能设置优先级
+                        nodes[i].setData(PRIORITY_DATA, value || null).render();
                 }
                 km.layout();
             },
@@ -112,7 +113,9 @@ define(function(require, exports, module) {
             },
 
             queryState: function(km) {
-                return km.getSelectedNodes().length ? 0 : -1;
+                return km.getSelectedNodes().filter(function(node) {
+                    return node.getData('type') == minder.getTypeMap().case.id;
+                }).length ? 0 : -1;
             }
         });
         return {
