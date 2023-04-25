@@ -126,47 +126,47 @@ define(function(require, exports, module) {
                     }
                 })
 
-            .on('normal.mousemove normal.touchmove ' +
-                'readonly.mousemove readonly.touchmove ' +
-                'inputready.mousemove inputready.touchmove',
-                function(e) {
-                    if (e.type == 'touchmove') {
-                        e.preventDefault(); // 阻止浏览器的后退事件
-                    }
-                    if (!isTempDrag) return;
-                    var offset = kity.Vector.fromPoints(lastPosition, e.getPosition('view'));
-                    if (offset.length() > 10) {
-                        this.setStatus('hand', true);
+                .on('normal.mousemove normal.touchmove ' +
+                    'readonly.mousemove readonly.touchmove ' +
+                    'inputready.mousemove inputready.touchmove',
+                    function(e) {
+                        if (e.type == 'touchmove') {
+                            e.preventDefault(); // 阻止浏览器的后退事件
+                        }
+                        if (!isTempDrag) return;
+                        var offset = kity.Vector.fromPoints(lastPosition, e.getPosition('view'));
+                        if (offset.length() > 10) {
+                            this.setStatus('hand', true);
+                            var paper = dragger._minder.getPaper();
+                            paper.setStyle('cursor', '-webkit-grabbing');
+                        }
+                    })
+
+                .on('hand.beforemousedown hand.beforetouchstart', function(e) {
+                    // 已经被用户打开拖放模式
+                    if (dragger.isEnabled()) {
+                        lastPosition = e.getPosition('view');
+                        e.stopPropagation();
                         var paper = dragger._minder.getPaper();
                         paper.setStyle('cursor', '-webkit-grabbing');
                     }
                 })
 
-            .on('hand.beforemousedown hand.beforetouchstart', function(e) {
-                // 已经被用户打开拖放模式
-                if (dragger.isEnabled()) {
-                    lastPosition = e.getPosition('view');
-                    e.stopPropagation();
-                    var paper = dragger._minder.getPaper();
-                    paper.setStyle('cursor', '-webkit-grabbing');
-                }
-            })
+                .on('hand.beforemousemove hand.beforetouchmove', function(e) {
+                    if (lastPosition) {
+                        currentPosition = e.getPosition('view');
 
-            .on('hand.beforemousemove hand.beforetouchmove', function(e) {
-                if (lastPosition) {
-                    currentPosition = e.getPosition('view');
+                        // 当前偏移加上历史偏移
+                        var offset = kity.Vector.fromPoints(lastPosition, currentPosition);
+                        dragger.move(offset);
+                        e.stopPropagation();
+                        e.preventDefault();
+                        e.originEvent.preventDefault();
+                        lastPosition = currentPosition;
+                    }
+                })
 
-                    // 当前偏移加上历史偏移
-                    var offset = kity.Vector.fromPoints(lastPosition, currentPosition);
-                    dragger.move(offset);
-                    e.stopPropagation();
-                    e.preventDefault();
-                    e.originEvent.preventDefault();
-                    lastPosition = currentPosition;
-                }
-            })
-
-            .on('mouseup touchend', dragEnd);
+                .on('mouseup touchend', dragEnd);
 
             window.addEventListener('mouseup', dragEnd);
             this._minder.on('contextmenu', function(e) {
@@ -215,7 +215,6 @@ define(function(require, exports, module) {
         var CameraCommand = kity.createClass('CameraCommand', {
             base: Command,
             execute: function(km, focusNode) {
-
                 focusNode = focusNode || km.getRoot();
                 var viewport = km.getPaper().getViewPort();
                 var offset = focusNode.getRenderContainer().getRenderBox('view');
@@ -268,6 +267,32 @@ define(function(require, exports, module) {
             enableReadOnly: true
         });
 
+
+        /**
+         * @command Camera
+         * @description 设置节点居左对齐
+         * @state
+         */
+        var AlignLeftCommand = kity.createClass('AlignLeftCommand', {
+            base: Command,
+            execute: function(km, focusNode) {
+
+                focusNode = focusNode || km.getRoot();
+                var viewBox =  km.getPaper().getViewBox();
+                var viewport = km.getPaper().getViewPort();
+                var offset = focusNode.getRenderContainer().getRenderBox('view');
+
+                var dx = viewBox.x - offset.x - offset.width / 2,
+                    dy = viewport.center.y - offset.y;
+                var dragger = km._viewDragger;
+
+                var duration = km.getOption('viewAnimationDuration');
+                dragger.move(new kity.Point(dx, dy), duration);
+                this.setContentChanged(false);
+            },
+            enableReadOnly: true
+        });
+
         return {
             init: function() {
                 this._viewDragger = new ViewDragger(this);
@@ -275,7 +300,8 @@ define(function(require, exports, module) {
             commands: {
                 'hand': ToggleHandCommand,
                 'camera': CameraCommand,
-                'move': MoveCommand
+                'move': MoveCommand,
+                'left': AlignLeftCommand,
             },
             events: {
                 statuschange: function(e) {
@@ -319,7 +345,8 @@ define(function(require, exports, module) {
                     if (!this.getRenderTarget()) {
                         return;
                     }
-                    this.execCommand('camera', null, 0);
+
+                    this.execCommand('left');
                     this._lastClientSize = {
                         width: this.getRenderTarget().clientWidth,
                         height: this.getRenderTarget().clientHeight
