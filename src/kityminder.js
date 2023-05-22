@@ -70,6 +70,7 @@ define(function(require, exports, module) {
     require('./module/data');
     require('./module/disabled');
     require('./module/story');
+    require('./module/api');
 
     require('./protocol/json');
     require('./protocol/text');
