@@ -7,7 +7,7 @@ define(function(require, exports, module) {
 
     Module.register('Type', function() {
         var types = {
-            module: {id: 1, key: 'module', name: '模块', color: '#fff4b3'},
+            module: {id: 1, key: 'module', name: '目录', color: '#fff4b3'},
             case: {id: 2, key: 'case', name: '用例', color: '#ffb3fb'},
             step: {id: 3, key: 'step', name: '步骤', color: '#ecffb3'},
         };

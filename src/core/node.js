@@ -224,15 +224,32 @@ define(function(require, exports, module) {
             }
             node.parent = this;
             node.data.parent_id = this.data.id;
-            if (node.parent.data.path) { //父节点有路径
-                node.data.path = node.parent.data.path + '/' + node.parent.data.id;
-            }
-            else { //父节点在根目录上
-                node.data.path = '/' + node.parent.data.id;
-            }
             node.root = this.root;
+            node = this.addPath(node);
 
             this.children.splice(index, 0, node);
+        },
+
+        calculatePath: function (parent) {
+            if (!parent)
+                return null;
+
+            else if (parent.data.path) { //父节点有路径
+                return parent.data.path + '/' + parent.data.id;
+            }
+            else { //父节点在根目录上
+                return '/' + parent.data.id;
+            }
+        },
+
+        addPath: function (node) {
+            node.data.path = this.calculatePath(node.parent);
+            if (node.children && node.children.length > 0) {
+                for (var idx in node.children) {
+                    node.children[idx] = this.addPath(node.children[idx]);
+                }
+            }
+            return node;
         },
 
         appendChild: function(node) {
@@ -282,17 +299,17 @@ define(function(require, exports, module) {
         },
 
         getDescendantsLevelID: function() {
-           var d = this.getDescendants();
-           var idLevelMap = {};
-           d.forEach(function (node) {
-               var level = node.getLevel();
-               if (idLevelMap[level])
-                   idLevelMap[level].push(node.data.id);
-               else
-                   idLevelMap[level] = [node.data.id];
-           });
+            var d = this.getDescendants();
+            var idLevelMap = {};
+            d.forEach(function (node) {
+                var level = node.getLevel();
+                if (idLevelMap[level])
+                    idLevelMap[level].push(node.data.id);
+                else
+                    idLevelMap[level] = [node.data.id];
+            });
 
-           return idLevelMap;
+            return idLevelMap;
         },
 
         getDataForChange: function() {
@@ -406,6 +423,7 @@ define(function(require, exports, module) {
             var node = new MinderNode(textOrData);
             if (parent) {
                 node.data.parent_id = parent.data.id;
+                node.data.path = node.calculatePath(parent);
                 if (index != 0 && !index) index = parent.getChildren().length;
             }
 
