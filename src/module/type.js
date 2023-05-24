@@ -7,7 +7,7 @@ define(function(require, exports, module) {
 
     Module.register('Type', function() {
         var types = {
-            module: {id: 1, key: 'module', name: '目录', color: '#fff4b3'},
+            module: {id: 1, key: 'module', name: '模块', color: '#fff4b3'},
             case: {id: 2, key: 'case', name: '用例', color: '#ffb3fb'},
             step: {id: 3, key: 'step', name: '步骤', color: '#ecffb3'},
         };
@@ -66,15 +66,15 @@ define(function(require, exports, module) {
                 rect = this.rect = new kity.Rect().setRadius(4);
 
                 text = this.text = new kity.Text()
-                    .setFontSize(12)
+                    .setFontSize(11)
                     .setVerticalAlign('middle');
 
                 this.addShapes([rect, text]);
             },
 
             setValue: function(type) {
-                var paddingX = 8,
-                    paddingY = 4,
+                var paddingX = 4,
+                    paddingY = 1,
                     borderRadius = 4;
                 var text, box, rect;
                 var name = getTypeByID(type).name;
@@ -92,10 +92,10 @@ define(function(require, exports, module) {
                     this.lastBox = box;
                 }
 
-                text.setX(paddingX).fill('#4d4100'); //字体颜色
+                text.setX(paddingX).setY(paddingY * 2).fill('#4d4100'); //字体颜色
 
                 rect = this.rect;
-                rect.setPosition(0, box.y - paddingY);
+                rect.setPosition(0, box.y + paddingY);
                 this.width = Math.round(box.width + paddingX * 2);
                 this.height = Math.round(box.height + paddingY * 2);
                 rect.setSize(this.width, this.height);
