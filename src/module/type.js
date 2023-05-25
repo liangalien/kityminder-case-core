@@ -123,6 +123,8 @@ define(function(require, exports, module) {
 
                 //var index = node.getIndex() || 0;
                 var overlay = new TypeOverlay();
+                if (container.getShapes() && container.getShapes().length > 0)
+                    container.removeShape(0); //先删除再新增，避免发生重影
                 container.addShape(overlay);
                 overlay.setVisible(true);
                 overlay.setValue(type);
