@@ -65,7 +65,7 @@ define(function(require, exports, module) {
         red: 0,
         soil: 25,
         green: 122,
-        blue: 204,
+        blue: 188,
         purple: 246,
         pink: 334
     };

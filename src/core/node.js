@@ -110,9 +110,21 @@ define(function(require, exports, module) {
 
         /**
          * 获得节点的类型（root|main|sub）
+         * 节点的类型根据目录、用例、步骤决定，不根据层级了 modify by shiqiangliang
          */
         getType: function(type) {
-            this.type = ['root', 'main', 'sub'][Math.min(this.getLevel(), 2)];
+            var caseTypeMap = this.getMinder().getTypeMap();
+            var caseType = this.getData('type');
+            if (caseType == caseTypeMap.module.id) {
+                this.type = 'root';
+            } else if (caseType == caseTypeMap.case.id) {
+                this.type = 'main';
+            } else if (caseType == caseTypeMap.step.id) {
+                this.type = 'sub';
+            } else {
+                this.type = ['root', 'main', 'sub'][Math.min(this.getLevel(), 2)];
+            }
+
             return this.type;
         },
 
