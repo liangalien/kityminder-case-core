@@ -24,6 +24,8 @@ define(function(require, exports, module) {
             ['#A3A3A3', '#515151'],
         ]; // hue from 1 to 5
 
+        var PRIORITY_TEXT = [null, '高', '中', '低'];
+
         // jscs:disable maximumLineLength
         var BACK_PATH = 'M0,13c0,3.866,3.134,7,7,7h6c3.866,0,7-3.134,7-7V7H0V13z';
         var MASK_PATH = 'M20,10c0,3.866-3.134,7-7,7H7c-3.866,0-7-3.134-7-7V7c0-3.866,3.134-7,7-7h6c3.866,0,7,3.134,7,7V10z';
@@ -36,7 +38,7 @@ define(function(require, exports, module) {
 
             constructor: function() {
                 this.callBase();
-                this.setSize(20);
+                this.setSize(14);
                 this.create();
                 this.setId(utils.uuid('node_priority'));
             },
@@ -49,11 +51,11 @@ define(function(require, exports, module) {
                 var white, back, mask, number; // 4 layer
 
                 white = new kity.Path().setPathData(MASK_PATH).fill('white');
-                back = new kity.Path().setPathData(BACK_PATH).setTranslate(0.5, 0.5);
-                mask = new kity.Path().setPathData(MASK_PATH).setOpacity(0.8).setTranslate(0.5, 0.5);
+                back = new kity.Path().setPathData(BACK_PATH).setTranslate(-3, -2);
+                mask = new kity.Path().setPathData(MASK_PATH).setOpacity(0.8).setTranslate(-3, -2);
 
                 number = new kity.Text()
-                    .setX(this.width / 2 - 0.5).setY(this.height / 2)
+                    .setX(this.width / 2 - 1).setY(this.height / 2)
                     .setTextAnchor('middle')
                     .setVerticalAlign('middle')
                     .setFontItalic(true)
@@ -78,7 +80,7 @@ define(function(require, exports, module) {
                     mask.fill(color[0]);
                 }
 
-                number.setContent(value);
+                number.setContent(PRIORITY_TEXT[value]);
             }
         });
 

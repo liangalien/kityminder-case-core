@@ -73,8 +73,8 @@ define(function(require, exports, module) {
             },
 
             setValue: function(type) {
-                var paddingX = 4,
-                    paddingY = 1,
+                var paddingX = 5,
+                    paddingY = 2,
                     borderRadius = 4;
                 var text, box, rect;
                 var name = getTypeByID(type).name;
@@ -92,10 +92,10 @@ define(function(require, exports, module) {
                     this.lastBox = box;
                 }
 
-                text.setX(paddingX).setY(paddingY * 2).fill('#4d4100'); //字体颜色
+                text.setX(paddingX).setY(paddingY * 2 - 3).fill('#4d4100'); //字体颜色
 
                 rect = this.rect;
-                rect.setPosition(0, box.y + paddingY);
+                rect.setPosition(0, box.y + paddingY - 3);
                 this.width = Math.round(box.width + paddingX * 2);
                 this.height = Math.round(box.height + paddingY * 2);
                 rect.setSize(this.width, this.height);
