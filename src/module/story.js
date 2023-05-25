@@ -47,7 +47,7 @@ define(function(require, exports, module) {
 
             queryValue: function(minder) {
                 var node = minder.getSelectedNode();
-                return node && node.getData('story') || [];
+                return node && node.getData('story') || null;
             },
             queryState: function (km) {
                 var node = minder.getSelectedNode();
