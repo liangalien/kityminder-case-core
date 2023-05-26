@@ -69,7 +69,7 @@ define(function(require, exports, module) {
     require('./module/zoom');
     require('./module/data');
     require('./module/disabled');
-    require('./module/story');
+    require('./module/jira');
     require('./module/api');
 
     require('./protocol/json');
