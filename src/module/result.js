@@ -100,7 +100,7 @@ define(function (require, exports, module) {
                         },
                         shouldRender: function (node) {
                             // return node.getData(RESULT_DATA);
-                            return node.getData(RESULT_DATA) && !node.getData('hideState')
+                            return node.getData(RESULT_DATA)  && !node.getData('hideState') && !node.hide
                         },
                         update: function (icon, node, box) {
                             var data = node.getData(RESULT_DATA)

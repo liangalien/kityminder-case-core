@@ -22,8 +22,7 @@ define(function(require, exports, module) {
             this.parent = null;
             this.root = this;
             this.children = [];
-            this.descendants = {};
-
+            this.hide = false;
 
             // 数据
             this.data = {
@@ -181,6 +180,16 @@ define(function(require, exports, module) {
          */
         setText: function(text) {
             return this.data.text = text;
+        },
+
+        /**
+         * 设置节点是否隐藏
+         * @param {Boolean} hide 是否隐藏
+         */
+        setHide: function(hide) {
+            if (!this.isRoot())
+                this.hide = hide;
+            return this;
         },
 
         /**

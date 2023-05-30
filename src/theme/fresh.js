@@ -11,12 +11,13 @@ define(function(require, exports, module) {
             'background': '#ffffff',
 
             'root-color': 'white',
-            'root-background': hsl(h, 37, 60),
-            'root-stroke': hsl(h, 37, 60),
+            'root-background': hsl(h, 33, 50),
+            'root-stroke': hsl(h, 37, 90),
+            'root-stroke-width': 1,
             'root-font-size': 16,
             'root-padding': compat ? [6, 12] : [12, 24],
             'root-margin': compat ? 10 : [30, 100],
-            'root-radius': 5,
+            'root-radius': 3,
             'root-space': 10,
 
             'main-color': 'black',
@@ -43,7 +44,7 @@ define(function(require, exports, module) {
             'connect-radius': 5,
 
             'selected-stroke': hsl(h, 26, 30),
-            'selected-stroke-width': '3',
+            'selected-stroke-width': '2.6',
             'blur-selected-stroke': hsl(h, 10, 60),
 
             'marquee-background': hsl(h, 100, 80).set('a', 0.1),

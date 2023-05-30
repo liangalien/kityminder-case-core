@@ -14,7 +14,7 @@ define(function(require, exports, module) {
         },
 
         shouldRender: function(node) {
-            return true;
+            return !node.hide;
         },
 
         watchChange: function(data) {

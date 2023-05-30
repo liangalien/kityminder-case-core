@@ -71,6 +71,7 @@ define(function(require, exports, module) {
     require('./module/disabled');
     require('./module/jira');
     require('./module/api');
+    require('./module/status');
 
     require('./protocol/json');
     require('./protocol/text');

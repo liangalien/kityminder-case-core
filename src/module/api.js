@@ -74,7 +74,7 @@ define(function(require, exports, module) {
                         return new ApiIcon()
                     },
                     shouldRender: function (node) {
-                        return node.getData("api") && !node.getData('hideState')
+                        return node.getData("api")  && !node.getData('hideState') && !node.hide
                     },
                     update: function (container, node, box) {
                         var spaceRight = node.getStyle('space-right');

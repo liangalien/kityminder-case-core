@@ -113,7 +113,7 @@ define(function(require, exports, module) {
             },
 
             shouldRender: function(node) {
-                return node.getData('type');
+                return node.getData('type')  && !node.getData('hideState') && !node.hide
             },
 
             update: function(container, node, box) {

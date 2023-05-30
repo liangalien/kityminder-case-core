@@ -88,7 +88,7 @@ define(function(require, exports, module) {
                     return new JiraIcon(issueType);
                 },
                 shouldRender: function (node) {
-                    return node.getData(issueType) && !node.getData('hideState')
+                    return node.getData(issueType)  && !node.getData('hideState') && !node.hide
                 },
                 update: function (container, node, box) {
                     var spaceRight = node.getStyle('space-right');
