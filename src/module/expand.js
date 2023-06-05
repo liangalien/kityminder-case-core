@@ -177,7 +177,7 @@ define(function(require, exports, module) {
             base: Renderer,
 
             create: function(node) {
-                if (node.isRoot()) return;
+                if (node.isRoot() || node.isHide()) return;
                 this.expander = new Expander(node);
                 node.getRenderContainer().prependShape(this.expander);
                 node.expanderRenderer = this;
@@ -186,11 +186,11 @@ define(function(require, exports, module) {
             },
 
             shouldRender: function(node) {
-                return !node.isRoot();
+                return !node.isRoot() && !node.isHide();
             },
 
             update: function(expander, node, box) {
-                if (!node.parent) return;
+                if (!node.parent || node.isHide()) return;
 
                 var visible = node.parent.isExpanded();
 

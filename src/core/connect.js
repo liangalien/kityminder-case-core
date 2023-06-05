@@ -56,7 +56,7 @@ define(function(require, exports, module) {
         },
 
         createConnect: function(node) {
-            if (node.isRoot() || node.hide) return;
+            if (node.isRoot() || node.isHide() || (node.parent && node.parent.isHide())) return;
 
             var connection = new kity.Path();
 

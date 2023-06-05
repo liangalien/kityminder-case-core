@@ -53,6 +53,13 @@ define(function(require, exports, module) {
         },
 
         /**
+         * 判断节点是否隐藏
+         */
+        isHide: function() {
+            return this.hide;
+        },
+
+        /**
          * 判断节点是否叶子
          */
         isLeaf: function() {
