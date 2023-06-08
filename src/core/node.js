@@ -125,7 +125,7 @@ define(function(require, exports, module) {
                 this.type = 'root';
             } else if (caseType == caseTypeMap.case.id) {
                 this.type = 'main';
-            } else if (caseType == caseTypeMap.step.id) {
+            } else if (caseType == caseTypeMap.step.id || caseType == caseTypeMap.expect.id) {
                 this.type = 'sub';
             } else {
                 this.type = ['root', 'main', 'sub'][Math.min(this.getLevel(), 2)];

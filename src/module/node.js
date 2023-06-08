@@ -148,7 +148,7 @@ define(function(require, exports, module) {
             var typeMap = km.getTypeMap();
             var data = {text: text};
             var parentType = parent.getData("type");
-            if (parentType == typeMap.step.id) { //父节点是步骤，无法新增子节点
+            if (parentType == typeMap.expect.id) { //父节点是预期结果，无法新增子节点
                 return null;
             }
             else if (parentType == typeMap.module.id) { //父节点是模块，子节点应是用例
@@ -159,8 +159,14 @@ define(function(require, exports, module) {
             }
             else if (parentType == typeMap.case.id) { //父节点是用例，子节点应是步骤
                 data = {
-                    text: text || "操作步骤&预期结果",
+                    text: text || "操作步骤",
                     type: typeMap.step.id,
+                };
+            }
+            else if (parentType == typeMap.step.id) { //父节点是步骤，子节点应是预期
+                data = {
+                    text: text || "预期结果",
+                    type: typeMap.expect.id,
                 };
             }
             var node = km.createNode(data, parent);
@@ -180,7 +186,7 @@ define(function(require, exports, module) {
 
             var typeMap = km.getTypeMap();
             for (var i = 0; i < nodes.length; i++) {
-                if (nodes[i].getData('type') == typeMap.step.id) return -1; //步骤没有下一级
+                if (nodes[i].getData('type') == typeMap.expect.id) return -1; //步骤没有下一级
             }
             return 0;
         }
@@ -207,7 +213,7 @@ define(function(require, exports, module) {
             var nodeType = nodes[0].getData("type");
             if (nodeType == typeMap.module.id || nodeType == typeMap.case.id) { //当前节点是模块或用例，父节点应是模块
                 data = {
-                    text: text || "目录名称",
+                    text: text || "模块名称",
                     type: typeMap.module.id,
                 };
             }
@@ -215,6 +221,12 @@ define(function(require, exports, module) {
                 data = {
                     text: text || "用例名称",
                     type: typeMap.case.id,
+                };
+            }
+            else if (nodeType == typeMap.expect.id) { //当前节点是预期，父节点应是步骤
+                data = {
+                    text: text || "操作步骤",
+                    type: typeMap.setp.id,
                 };
             }
 
@@ -254,9 +266,10 @@ define(function(require, exports, module) {
             var typeMap = km.getTypeMap();
             var siblingType = sibling.getData("type");
             if (!text) {
-                if (siblingType == typeMap.module.id) text = "目录名称";
+                if (siblingType == typeMap.module.id) text = "模块名称";
                 else if (siblingType == typeMap.case.id) text = "用例名称";
-                else if (siblingType == typeMap.step.id) text = "操作步骤&预期结果";
+                else if (siblingType == typeMap.step.id) text = "操作步骤";
+                else if (siblingType == typeMap.expect.id) text = "预期结果";
             }
             var data = {text: text, type: siblingType || typeMap.module.id}
             var parent = sibling.parent;

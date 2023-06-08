@@ -50,5 +50,5 @@
     "dev": "grunt dev"
   },
   "title": "Kity Minder Core For Case",
-  "version": "1.2.2"
+  "version": "1.3"
 }
