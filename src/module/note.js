@@ -17,10 +17,6 @@ define(function(require, exports, module) {
     var Renderer = require('../core/render');
 
     Module.register('NoteModule', function() {
-
-        var NOTE_PATH = 'M9,9H3V8h6L9,9L9,9z M9,7H3V6h6V7z M9,5H3V4h6V5z M8.5,11H2V2h8v7.5 M9,12l2-2V1H1v11';
-
-
         /**
          * @command Note
          * @description 设置节点的备注信息
@@ -56,16 +52,14 @@ define(function(require, exports, module) {
                 this.callBase();
                 this.width = 16;
                 this.height = 17;
-                this.rect = new kity.Rect(16, 17, 0.5, -8.5, 2).fill('transparent');
-                this.path = new kity.Path().setPathData(NOTE_PATH).setTranslate(2.5, -6.5);
-                this.addShapes([this.rect, this.path]);
 
-                this.on('mouseover', function() {
-                    this.rect.fill('rgba(255, 255, 200, .8)');
-                }).on('mouseout', function() {
-                    this.rect.fill('transparent');
-                });
+                this.rect = new kity.Rect().fill('#d7d7d7').setId(utils.uuid('node_note'));
 
+                this.text = new kity.Text()
+                    .setFontSize(11)
+                    .setVerticalAlign('middle');
+
+                this.addShapes([this.rect, this.text]);
                 this.setStyle('cursor', 'pointer');
             }
         });
@@ -74,7 +68,11 @@ define(function(require, exports, module) {
             base: Renderer,
 
             create: function(node) {
+                if (!node.getData('note')) return;
+
                 var icon = new NoteIcon();
+
+                icon.getShapeNode().setAttribute("class", "node-note");
                 icon.on('mousedown', function(e) {
                     e.preventDefault();
                     node.getMinder().fire('editnoterequest');
@@ -93,20 +91,26 @@ define(function(require, exports, module) {
             },
 
             update: function(icon, node, box) {
-                var x = box.right + node.getStyle('space-left');
-                var y = box.cy;
+                if (!node.getData('note')) {
+                    return;
+                }
 
-                icon.path.fill(node.getStyle('color'));
-                icon.setTranslate(x, y);
+                var maxLength = Math.ceil(box.width / 10 - 4);
+                var note = node.getData('note');
+                if (note.length > maxLength) {
+                    note = note.substring(0, maxLength) + "...";
+                }
 
-                return new kity.Box(x, Math.round(y - icon.height / 2), icon.width, icon.height);
+                icon.rect.setTranslate(box.left, box.bottom + 2).setSize(box.width, 20);
+                icon.text.setTranslate(box.left, box.bottom + 11).setContent(note)
+                return new kity.Box(icon.x, icon.y, icon.width, icon.height);
             }
 
         });
 
         return {
             renderers: {
-                right: NoteIconRenderer
+                outside: NoteIconRenderer
             },
             commands: {
                 'note': NoteCommand

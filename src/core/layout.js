@@ -82,9 +82,10 @@ define(function(require, exports, module) {
             nodes.forEach(function(node, index, nodes) {
                 var tbox = me.getTreeBox([node]);
 
+                var noteShape = node.getRenderer("NoteIconRenderer")._renderShape;
                 var size = {
                     x: tbox.width,
-                    y: tbox.height
+                    y: tbox.height + (noteShape && noteShape.node.getAttribute("display") != "none" ? noteShape.height : 0)
                 }[axis];
                 var offset = {
                     x: tbox.left,

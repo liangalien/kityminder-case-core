@@ -226,7 +226,7 @@ define(function(require, exports, module) {
             else if (nodeType == typeMap.expect.id) { //当前节点是预期，父节点应是步骤
                 data = {
                     text: text || "操作步骤",
-                    type: typeMap.setp.id,
+                    type: typeMap.step.id,
                 };
             }
 
