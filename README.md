@@ -16,7 +16,7 @@ KityMinder 是一款强大的脑图可视化/编辑工具，由百度 FEX 团队
 * data中新增排序字段index
 
 ## 界面预览
-
+[![](https://github.com/liangalien/kityminder-case-core/blob/master/dist/demo.png?raw=true)](https://github.com/liangalien/kityminder-case-core/blob/master/dist/demo.png?raw=true)
 
 ## 使用
 
@@ -24,9 +24,9 @@ KityMinder 是一款强大的脑图可视化/编辑工具，由百度 FEX 团队
 npm install kityminder-case-core
 ````
 
-推荐与kityminder-case-react或kityminder-case-vue配套使用：
-https://github.com/liangalien/kityminder-case-react
-https://github.com/liangalien/kityminder-case-vue
+- 推荐与kityminder-case-react或kityminder-case-vue配套使用：
+- [x] https://github.com/liangalien/kityminder-case-react
+- [x] https://github.com/liangalien/kityminder-case-vue
 
 ## 开发
 
