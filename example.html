@@ -17,110 +17,17 @@
         #minder-view {
             position: absolute;
             border: 1px solid #ccc;
-            left: 10px;
-            top: 10px;
-            bottom: 10px;
-            right: 10px;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
         }
     </style>
 
     <script type="text/javascript" src="node_modules/kity/dist/kity.min.js"></script>
 </head>
 <body>
-    <script id="minder-view" type="application/kityminder" minder-data-type="json">
-    {
-	"root": {
-		"data": {
-			"id": "cnkf792tf400",
-			"text": "模块名称",
-			"type": 1
-		},
-		"children": [{
-			"data": {
-				"id": "cnkfhaarjeo0",
-				"created": 1665626960620,
-				"path": "undefined/模块名称",
-				"id_path": "undefined/cnkf792tf400",
-				"text": "用例名称",
-				"type": 2,
-				"parent_id": "cnkf792tf400",
-				"index": 0,
-				"priority": 1
-			},
-			"children": [{
-				"data": {
-					"id": "cnkfhbcwkp40",
-					"created": 1665626962926,
-					"path": "undefined/模块名称/用例名称",
-					"id_path": "undefined/cnkf792tf400/cnkfhaarjeo0",
-					"text": "操作步骤&预期结果",
-					"type": 3,
-					"parent_id": "cnkfhaarjeo0",
-					"index": 0,
-					"disabled": 1
-				},
-				"children": []
-			}, {
-				"data": {
-					"id": "cnkfhbttbio0",
-					"created": 1665626963948,
-					"path": "undefined/模块名称/用例名称",
-					"id_path": "undefined/cnkf792tf400/cnkfhaarjeo0",
-					"text": "操作步骤&预期结果",
-					"type": 3,
-					"parent_id": "cnkfhaarjeo0",
-					"index": 1,
-					"result": 1
-				},
-				"children": []
-			}]
-		}, {
-			"data": {
-				"id": "cnkfhascuds0",
-				"created": 1665626961683,
-				"path": "undefined/模块名称",
-				"id_path": "undefined/cnkf792tf400",
-				"text": "用例名称",
-				"type": 2,
-				"parent_id": "cnkf792tf400",
-				"index": 1,
-				"priority": 3,
-				"result": 2
-			},
-			"children": [{
-				"data": {
-					"id": "cnkfhc7zz7s0",
-					"created": 1665626964806,
-					"path": "undefined/模块名称/用例名称",
-					"id_path": "undefined/cnkf792tf400/cnkfhascuds0",
-					"text": "操作步骤&预期结果",
-					"type": 3,
-					"parent_id": "cnkfhascuds0",
-					"index": 0,
-					"result": 2
-				},
-				"children": []
-			}, {
-				"data": {
-					"id": "cnkfhd7ovr40",
-					"created": 1665626966964,
-					"path": "undefined/模块名称/用例名称",
-					"id_path": "undefined/cnkf792tf400/cnkfhascuds0",
-					"text": "操作步骤&预期结果",
-					"type": 3,
-					"parent_id": "cnkfhascuds0",
-					"index": 1,
-					"result": 3
-				},
-				"children": []
-			}]
-		}]
-	},
-		"template": "right",
-		"theme": "fresh-blue-compat",
-		"version": "1.4.43"
-	}
-    </script>
+    <div id="minder-view"></div>
 </body>
 
 <script type="text/javascript" src="dist/kityminder.case.core.min.js"></script>
@@ -128,9 +35,81 @@
     // 创建 km 实例
     /* global kityminder */
     var km = window.km = new kityminder.Minder();
-    km.setup('#minder-view');
-    km.disable();
-    km.execCommand('hand');
+
+    km.renderTo(document.querySelector("#minder-view"));
+    km.importJson({
+        root: {
+            data: {
+                text: "用例目录",
+                type: 1, //节点类型
+                priority: 1, //优先级
+                progress: 3, //进度
+                note: "我是一个备注"
+            },
+            children: [
+                {
+                    data: {
+                        text: "内嵌用例目录",
+                        type: 1,
+                        disabled: 1 //已禁用
+                    },
+
+                },
+                {
+                    data: {
+                        text: "待评审的用例",
+                        type: 2,
+                        api: 1, //关联的接口自动化数量
+                        story: 1, //关联的故事数
+                        status: 1, //状态
+                    },
+                    children: [
+                        {
+                            data: {text: "测试步骤1", type: 3},
+                            children: [
+                                {
+                                    data: {text: "预期结果1", type: 4}
+                                },
+                                {
+                                    data: {text: "预期结果2", type: 4}
+                                }
+                            ]
+                        },
+                        {
+                            data: {text: "测试步骤2", type: 3, disabled: 1}
+                        }
+                    ]
+                },
+                {
+                    data: {
+                        text: "评审通过的用例",
+                        type: 2,
+                        api: 1, //关联的接口自动化数量
+                        story: 1, //关联的故事数
+                        status: 2, //状态
+                    },
+                },
+                {
+                    data: {
+                        text: "评审不通过的用例",
+                        type: 2,
+                        bug: 1, //关联的BUG数
+                        view: 1, //关联的评审问题数
+                        status: 3, //状态
+                    },
+                },
+                {
+                    data: {
+                        text: "评审不通过但已进行修改的用例",
+                        type: 2,
+                        status: 4, //状态
+                        note: "备注：具体用法见kityminder-case-vue"
+                    },
+                }
+            ]
+        },
+        template: 'right'
+    })
 </script>
 
 </html>

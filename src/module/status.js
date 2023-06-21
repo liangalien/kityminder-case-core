@@ -58,7 +58,7 @@ define(function(require, exports, module) {
         execute: function(minder, status) {
             var nodes = minder.getSelectedNodes();
             nodes.forEach(function (node) {
-                let curType = node.getData('type');
+                var curType = node.getData('type');
                 if (curType == minder.getTypeMap().case.id)
                     node.setData('status', status).render();
 
