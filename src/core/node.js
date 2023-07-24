@@ -27,7 +27,8 @@ define(function(require, exports, module) {
             // 数据
             this.data = {
                 id: utils.guid(),
-                path: null
+                path: null,
+                index: 0
             };
 
             // 绘图容器
@@ -236,7 +237,7 @@ define(function(require, exports, module) {
         },
 
         getChildren: function() {
-            return this.children;
+            return this.children || [];
         },
 
         getIndex: function() {
@@ -252,11 +253,15 @@ define(function(require, exports, module) {
             }
             node.parent = this;
             node.data.parent_id = this.data.id;
+            node.data.index = index || 0;
+
+            var defaultStatus = this.getMinder() && this.getMinder().getOption("status");
+            if (defaultStatus) node.data.status = defaultStatus;
+
             node.root = this.root;
             node = this.addPath(node);
 
             this.children.splice(index, 0, node);
-            this.setIndex();
         },
 
         calculatePath: function (parent) {
@@ -451,12 +456,10 @@ define(function(require, exports, module) {
         createNode: function(textOrData, parent, index) {
             var node = new MinderNode(textOrData);
             if (parent) {
+                if (index != 0 && !index) index = parent.getChildren().length;
                 node.data.parent_id = parent.data.id;
                 node.data.path = node.calculatePath(parent);
-                if (index != 0 && !index) index = parent.getChildren().length;
             }
-
-            node.setData('index', index || 0);
             this.fire('nodecreate', {
                 node: node,
                 parent: parent,

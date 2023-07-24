@@ -32,11 +32,12 @@ define(function(require, exports, module) {
 
             'sub-color': 'black',
             'sub-background': 'transparent',
-            'sub-stroke': 'none',
+            'sub-stroke': hsl(h, 37, 60),
+            'sub-stroke-width': 0.5,
             'sub-font-size': 12,
             'sub-padding': compat ? [3, 5] : [5, 10],
             'sub-margin': compat ? [4, 8] : [15, 20],
-            'sub-radius': 5,
+            'sub-radius': 3,
             'sub-space': 5,
 
             'connect-color': hsl(h, 37, 60),

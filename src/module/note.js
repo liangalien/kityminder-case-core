@@ -87,7 +87,7 @@ define(function(require, exports, module) {
             },
 
             shouldRender: function(node) {
-                return node.getData('note');
+                return node.getData('note') && !node.getData('hideState') && !node.hide;
             },
 
             update: function(icon, node, box) {

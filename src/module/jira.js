@@ -72,7 +72,11 @@ define(function(require, exports, module) {
                 },
                 queryState: function (km) {
                     var node = minder.getSelectedNode();
-                    return node && node.getData('type') == minder.getTypeMap().case.id ? 0 : -1;
+                    if (issueType == "bug") {
+                        return node && node.getData('type') != minder.getTypeMap().module.id ? 0 : -1;
+                    } else {
+                        return node && node.getData('type') == minder.getTypeMap().case.id ? 0 : -1;
+                    }
                 },
             }
         }
@@ -85,7 +89,15 @@ define(function(require, exports, module) {
             return {
                 base: Renderer,
                 create: function (node) {
-                    return new JiraIcon(issueType);
+                    var icon = new JiraIcon(issueType);
+
+                    icon.on('mousedown', function(e) {
+                        console.log('mousedown edit' + issueType)
+                        e.preventDefault();
+                        node.getMinder().fire('edit' + issueType);
+                    });
+
+                    return icon;
                 },
                 shouldRender: function (node) {
                     return node.getData(issueType)  && !node.getData('hideState') && !node.hide

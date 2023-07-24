@@ -61,7 +61,8 @@ define(function(require, exports, module) {
                 var childNodes = node.getChildren();
                 exported.children = [];
                 for (var i = 0; i < childNodes.length; i++) {
-                    exported.children.push(exportNode(childNodes[i]));
+                    if (!childNodes.hide)
+                        exported.children.push(exportNode(childNodes[i]));
                 }
                 return exported;
             }
@@ -78,7 +79,7 @@ define(function(require, exports, module) {
         },
 
         /**
-         * function Text2Children(MinderNode, String) 
+         * function Text2Children(MinderNode, String)
          * @param {MinderNode} node 要导入数据的节点
          * @param {String} text 导入的text数据
          * @Desc: 用于批量插入子节点，并不会修改被插入的父节点
@@ -91,7 +92,7 @@ define(function(require, exports, module) {
          *              wereww
          *          12314
          *      1231412
-         *      13123    
+         *      13123
          */
         Text2Children: function (node, text) {
             if (!(node instanceof kityminder.Node)) {
