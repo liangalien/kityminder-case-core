@@ -72,6 +72,7 @@ define(function(require, exports, module) {
     require('./module/jira');
     require('./module/api');
     require('./module/status');
+    require('./module/mark');
 
     require('./protocol/json');
     require('./protocol/text');

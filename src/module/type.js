@@ -62,15 +62,13 @@ define(function(require, exports, module) {
             constructor: function() {
                 this.callBase();
 
-                var text, rect;
-
-                rect = this.rect = new kity.Rect().setRadius(4);
-
-                text = this.text = new kity.Text()
+                var rect = this.rect = new kity.Rect().setRadius(4);
+                var text = this.text = new kity.Text()
                     .setFontSize(11)
                     .setVerticalAlign('middle');
 
                 this.addShapes([rect, text]);
+                this.setStyle('cursor', 'pointer');
             },
 
             setValue: function(type) {
@@ -110,7 +108,15 @@ define(function(require, exports, module) {
         var TypeRenderer = kity.createClass('TypeRenderer', {
             base: Renderer,
             create: function(node) {
-                return new kity.Group();
+                var icon = new kity.Group();
+                /*icon.on('mousedown', function(e) {
+                    var minder = node.getMinder();
+                    e.preventDefault();
+                    minder.select(node, true);
+                    minder.fire('edittype');
+                });*/ 
+
+                return icon;
             },
 
             shouldRender: function(node) {

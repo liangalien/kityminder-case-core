@@ -19,7 +19,8 @@ define(function(require, exports, module) {
                 this.create()
                 this.setValue(value)
                 this.setId(utils.uuid('node_api'))
-                this.translate(0.5, 0.5)
+                this.translate(0.5, 0.5);
+                this.setStyle('cursor', 'pointer');
             },
             setWidth: function (size) {
                 this.width = size;
@@ -71,7 +72,15 @@ define(function(require, exports, module) {
                 right: kity.createClass('ApiRenderer', {
                     base: Renderer,
                     create: function (node) {
-                        return new ApiIcon()
+                        var icon = new ApiIcon();
+                        icon.on('mousedown', function(e) {
+                            var minder = node.getMinder();
+                            e.preventDefault();
+                            minder.select(node, true);
+                            minder.fire('editapi');
+                        });
+
+                        return icon;
                     },
                     shouldRender: function (node) {
                         return node.getData("api")  && !node.getData('hideState') && !node.hide

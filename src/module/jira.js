@@ -18,7 +18,8 @@ define(function(require, exports, module) {
                 this.setHeight(20)
                 this.create()
                 this.setIconVisible(issueType);
-                this.setId(utils.uuid(issueType))
+                this.setId(utils.uuid(issueType));
+                this.setStyle('cursor', 'pointer');
                 //this.translate(0.5, 0.5)
             },
             setWidth: function (size) {
@@ -92,9 +93,10 @@ define(function(require, exports, module) {
                     var icon = new JiraIcon(issueType);
 
                     icon.on('mousedown', function(e) {
-                        console.log('mousedown edit' + issueType)
+                        var minder = node.getMinder();
                         e.preventDefault();
-                        node.getMinder().fire('edit' + issueType);
+                        minder.select(node, true);
+                        minder.fire('edit' + issueType);
                     });
 
                     return icon;
