@@ -69,6 +69,7 @@ define(function(require, exports, module) {
 
                 this.addShapes([rect, text]);
                 this.setStyle('cursor', 'pointer');
+                this.addClass('node-type');
             },
 
             setValue: function(type) {
@@ -109,12 +110,11 @@ define(function(require, exports, module) {
             base: Renderer,
             create: function(node) {
                 var icon = new kity.Group();
-                /*icon.on('mousedown', function(e) {
+                icon.on('mousedown', function(e) {
                     var minder = node.getMinder();
                     e.preventDefault();
-                    minder.select(node, true);
-                    minder.fire('edittype');
-                });*/ 
+                    minder.fire('edittype', {node: node});
+                });
 
                 return icon;
             },
