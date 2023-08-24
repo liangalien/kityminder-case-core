@@ -14,7 +14,16 @@ define(function(require, exports, module) {
             if (index < 0 || index >= sibling.length) return;
             sibling.splice(this.getIndex(), 1);
             sibling.splice(index, 0, this);
+
+            parent.setIndex();
             return this;
+        },
+        setIndex: function () {
+            if (this.children && this.children.length) {
+                this.children.forEach(function(node, index) {
+                    node.setData("index", index);
+                });
+            }
         }
     });
 

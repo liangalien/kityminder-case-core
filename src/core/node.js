@@ -262,6 +262,8 @@ define(function(require, exports, module) {
             node = this.addPath(node);
 
             this.children.splice(index, 0, node);
+
+            this.setIndex();
         },
 
         calculatePath: function (parent) {
