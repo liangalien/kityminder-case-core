@@ -201,6 +201,7 @@ define(function(require, exports, module) {
             var childrenTreeData = json.children || [];
             for (var i = 0; i < childrenTreeData.length; i++) {
                 var childNode = this.createNode(null, node);
+                childrenTreeData[i].data.parent_id = data.id;
                 this.importNode(childNode, childrenTreeData[i]);
             }
             return node;
