@@ -87,9 +87,9 @@ define(function(require, exports, module) {
     require('./layout/fish-bone-slave');
     require('./layout/tianpan');
 
-    require('./theme/default');
-    require('./theme/snow');
     require('./theme/fresh');
+    require('./theme/snow');
+    require('./theme/default');
     require('./theme/fish');
     require('./theme/snow');
     require('./theme/wire');

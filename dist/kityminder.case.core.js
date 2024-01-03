@@ -1,9 +1,9 @@
 /*!
  * ====================================================
- * Kity Minder Core For Case - v1.3.1 - 2023-06-21
+ * Kity Minder Core For Case - v2.1.12 - 2024-01-03
  * https://github.com/liangalien/kityminder-case-core
  * GitHub: git+https://github.com/liangalien/kityminder-case-core.git 
- * Copyright (c) 2023 shiqiangliang; Licensed 
+ * Copyright (c) 2024 shiqiangliang; Licensed 
  * ====================================================
  */
 
@@ -802,7 +802,7 @@ _p[12] = {
                     var childNodes = node.getChildren();
                     exported.children = [];
                     for (var i = 0; i < childNodes.length; i++) {
-                        exported.children.push(exportNode(childNodes[i]));
+                        if (!childNodes.hide) exported.children.push(exportNode(childNodes[i]));
                     }
                     return exported;
                 }
@@ -815,7 +815,7 @@ _p[12] = {
                 return JSON.parse(JSON.stringify(json));
             },
             /**
-         * function Text2Children(MinderNode, String) 
+         * function Text2Children(MinderNode, String)
          * @param {MinderNode} node 要导入数据的节点
          * @param {String} text 导入的text数据
          * @Desc: 用于批量插入子节点，并不会修改被插入的父节点
@@ -828,7 +828,7 @@ _p[12] = {
          *              wereww
          *          12314
          *      1231412
-         *      13123    
+         *      13123
          */
             Text2Children: function(node, text) {
                 if (!(node instanceof kityminder.Node)) {
@@ -919,6 +919,7 @@ _p[12] = {
                 var childrenTreeData = json.children || [];
                 for (var i = 0; i < childrenTreeData.length; i++) {
                     var childNode = this.createNode(null, node);
+                    childrenTreeData[i].data.parent_id = data.id;
                     this.importNode(childNode, childrenTreeData[i]);
                 }
                 return node;
@@ -2138,7 +2139,8 @@ _p[21] = {
                 // 数据
                 this.data = {
                     id: utils.guid(),
-                    path: null
+                    path: null,
+                    index: 0
                 };
                 // 绘图容器
                 this.initContainers();
@@ -2315,7 +2317,7 @@ _p[21] = {
                 return this.postTraverse(fn, excludeThis);
             },
             getChildren: function() {
-                return this.children;
+                return this.children || [];
             },
             getIndex: function() {
                 return this.parent ? this.parent.children.indexOf(this) : -1;
@@ -2329,6 +2331,9 @@ _p[21] = {
                 }
                 node.parent = this;
                 node.data.parent_id = this.data.id;
+                node.data.index = index || 0;
+                var defaultStatus = this.getMinder() && this.getMinder().getOption("status");
+                if (defaultStatus) node.data.status = defaultStatus;
                 node.root = this.root;
                 node = this.addPath(node);
                 this.children.splice(index, 0, node);
@@ -2488,11 +2493,10 @@ _p[21] = {
             createNode: function(textOrData, parent, index) {
                 var node = new MinderNode(textOrData);
                 if (parent) {
+                    if (index != 0 && !index) index = parent.getChildren().length;
                     node.data.parent_id = parent.data.id;
                     node.data.path = node.calculatePath(parent);
-                    if (index != 0 && !index) index = parent.getChildren().length;
                 }
-                node.setData("index", index || 0);
                 this.fire("nodecreate", {
                     node: node,
                     parent: parent,
@@ -3913,15 +3917,15 @@ _p[35] = {
         _p.r(52);
         _p.r(55);
         _p.r(56);
-        _p.r(57);
         _p.r(58);
         _p.r(59);
         _p.r(60);
         _p.r(61);
         _p.r(62);
-        _p.r(69);
         _p.r(63);
+        _p.r(69);
         _p.r(64);
+        _p.r(65);
         _p.r(67);
         _p.r(68);
         _p.r(70);
@@ -3930,7 +3934,8 @@ _p[35] = {
         _p.r(47);
         _p.r(54);
         _p.r(42);
-        _p.r(65);
+        _p.r(66);
+        _p.r(57);
         _p.r(72);
         _p.r(76);
         _p.r(73);
@@ -3942,9 +3947,9 @@ _p[35] = {
         _p.r(38);
         _p.r(39);
         _p.r(41);
-        _p.r(83);
-        _p.r(86);
         _p.r(85);
+        _p.r(86);
+        _p.r(83);
         _p.r(84);
         _p.r(86);
         _p.r(88);
@@ -4428,6 +4433,7 @@ _p[42] = {
                     this.setValue(value);
                     this.setId(utils.uuid("node_api"));
                     this.translate(.5, .5);
+                    this.setStyle("cursor", "pointer");
                 },
                 setWidth: function(size) {
                     this.width = size;
@@ -4471,7 +4477,14 @@ _p[42] = {
                     right: kity.createClass("ApiRenderer", {
                         base: Renderer,
                         create: function(node) {
-                            return new ApiIcon();
+                            var icon = new ApiIcon();
+                            icon.on("mousedown", function(e) {
+                                var minder = node.getMinder();
+                                e.preventDefault();
+                                minder.select(node, true);
+                                minder.fire("editapi");
+                            });
+                            return icon;
                         },
                         shouldRender: function(node) {
                             return node.getData("api") && !node.getData("hideState") && !node.hide;
@@ -6157,6 +6170,7 @@ _p[54] = {
                     this.create();
                     this.setIconVisible(issueType);
                     this.setId(utils.uuid(issueType));
+                    this.setStyle("cursor", "pointer");
                 },
                 setWidth: function(size) {
                     this.width = size;
@@ -6200,7 +6214,11 @@ _p[54] = {
                     },
                     queryState: function(km) {
                         var node = minder.getSelectedNode();
-                        return node && node.getData("type") == minder.getTypeMap().case.id ? 0 : -1;
+                        if (issueType == "bug") {
+                            return node && node.getData("type") != minder.getTypeMap().module.id ? 0 : -1;
+                        } else {
+                            return node && node.getData("type") == minder.getTypeMap().case.id ? 0 : -1;
+                        }
                     }
                 };
             }
@@ -6211,7 +6229,14 @@ _p[54] = {
                 return {
                     base: Renderer,
                     create: function(node) {
-                        return new JiraIcon(issueType);
+                        var icon = new JiraIcon(issueType);
+                        icon.on("mousedown", function(e) {
+                            var minder = node.getMinder();
+                            e.preventDefault();
+                            minder.select(node, true);
+                            minder.fire("edit" + issueType);
+                        });
+                        return icon;
                     },
                     shouldRender: function(node) {
                         return node.getData(issueType) && !node.getData("hideState") && !node.hide;
@@ -6475,8 +6500,80 @@ _p[56] = {
     }
 };
 
-//src/module/node.js
+//src/module/mark.js
 _p[57] = {
+    value: function(require, exports, module) {
+        var kity = _p.r(17);
+        var utils = _p.r(33);
+        var Minder = _p.r(19);
+        var MinderNode = _p.r(21);
+        var Command = _p.r(9);
+        var Module = _p.r(20);
+        var Renderer = _p.r(27);
+        Module.register("Mark", function() {
+            var MarkIcon = kity.createClass("MarkIcon", {
+                base: kity.Group,
+                constructor: function(value) {
+                    this.callBase();
+                    this.create();
+                    this.setId(utils.uuid("node_mark"));
+                },
+                create: function() {
+                    this.circle = new kity.Circle(4).fill("#ff2e2e");
+                    this.addShapes([ this.circle ]);
+                },
+                setValue: function(value) {
+                    this.circle.setVisible(value == 1);
+                }
+            });
+            var MarkCommand = kity.createClass("MarkCommand", {
+                base: Command,
+                execute: function(minder, mark) {
+                    var nodes = minder.getSelectedNodes();
+                    nodes.forEach(function(node) {
+                        node.setData("mark", mark).render();
+                    });
+                    minder.layout(200);
+                },
+                queryValue: function(minder) {
+                    var node = minder.getSelectedNode();
+                    return node && node.getData("mark") || null;
+                },
+                queryState: function(km) {
+                    return km.getSelectedNodes().length > 0 ? 0 : -1;
+                }
+            });
+            return {
+                commands: {
+                    mark: MarkCommand
+                },
+                renderers: {
+                    right: kity.createClass("MarkRenderer", {
+                        base: Renderer,
+                        create: function(node) {
+                            return new MarkIcon();
+                        },
+                        shouldRender: function(node) {
+                            return node.getData("mark") && !node.getData("hideState") && !node.hide;
+                        },
+                        update: function(container, node, box) {
+                            var value = node.getData("mark");
+                            container.setValue(value);
+                            if (!value) return;
+                            var marginRight = node.getStyle("padding-right");
+                            var stroke = node.getStyle("selected-stroke-width");
+                            container.setTranslate(box.x + box.width + marginRight - stroke, box.y - stroke);
+                            return new kity.Box(0, 0, 0, 0);
+                        }
+                    })
+                }
+            };
+        });
+    }
+};
+
+//src/module/node.js
+_p[58] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -6786,7 +6883,7 @@ _p[57] = {
  * @author: techird
  * @copyright: Baidu FEX, 2014
  */
-_p[58] = {
+_p[59] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -6857,7 +6954,7 @@ _p[58] = {
                     return icon;
                 },
                 shouldRender: function(node) {
-                    return node.getData("note");
+                    return node.getData("note") && !node.getData("hideState") && !node.hide;
                 },
                 update: function(icon, node, box) {
                     if (!node.getData("note")) {
@@ -6886,7 +6983,7 @@ _p[58] = {
 };
 
 //src/module/outline.js
-_p[59] = {
+_p[60] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -7003,7 +7100,7 @@ _p[59] = {
 };
 
 //src/module/priority.js
-_p[60] = {
+_p[61] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -7133,7 +7230,7 @@ _p[60] = {
 };
 
 //src/module/progress.js
-_p[61] = {
+_p[62] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -7258,7 +7355,7 @@ _p[61] = {
 };
 
 //src/module/resource.js
-_p[62] = {
+_p[63] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -7588,7 +7685,7 @@ _p[62] = {
 };
 
 //src/module/result.js
-_p[63] = {
+_p[64] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -7699,7 +7796,7 @@ _p[63] = {
 };
 
 //src/module/select.js
-_p[64] = {
+_p[65] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -7844,7 +7941,7 @@ _p[64] = {
 };
 
 //src/module/status.js
-_p[65] = {
+_p[66] = {
     value: function(require, exports, module) {
         var kity = _p.r(17);
         var utils = _p.r(33);
@@ -7877,10 +7974,15 @@ _p[65] = {
                 this.fail2 = new kity.Path().setPathData("M14.482 4.33562C14.7323 4.55021 14.7733 4.94465 14.5725 5.21214L7.6383 14.467C7.43747 14.7345 7.06834 14.7783 6.81802 14.5637C6.5677 14.3492 6.52668 13.9547 6.72751 13.6872L13.6617 4.43233C13.8625 4.16484 14.2316 4.12253 14.482 4.33562Z").fill("#FFF");
                 this.fail3 = new kity.Path().setPathData("M7.67057 8.26826C7.89728 8.04414 8.26994 8.04414 8.49666 8.26688L12.4287 12.1201C12.6569 12.3429 12.6569 12.709 12.4301 12.9317C12.2034 13.1559 11.8308 13.1559 11.604 12.9331L7.67057 9.07985C7.44386 8.85712 7.44244 8.49239 7.67057 8.26826Z").fill("#FFF");
                 this.solve1 = new kity.Path().setPathData("M15 0L15 13.125C15 14.1562 14.1562 15 13.125 15L0 15L15 0Z").fill("#F4A21D");
-                this.solve2 = new kity.Path().setPathData("M14.2356 5.83533C13.9909 5.62113 13.637 5.66644 13.4412 5.93419L8.63288 12.5496L6.88578 9.99982C6.6674 9.68265 6.25321 9.61674 5.96329 9.85565C5.67336 10.0946 5.61311 10.5477 5.8315 10.8649L8.09068 14.1602C8.12457 14.2096 8.17352 14.2673 8.22247 14.3044C8.50863 14.5433 8.91904 14.4815 9.13743 14.1684L14.3335 6.69212C14.5218 6.42437 14.4766 6.04541 14.2356 5.83533Z").fill("#FFF");
-                this.ready1 = new kity.Path().setPathData("M15 0L15 13.125C15 14.1562 14.1562 15 13.125 15L0 15L15 0Z").fill("#2b8cff");
+                this.solve2 = new kity.Path().setPathData("M6.81305 11.7755C6.755 11.7921 6.69583 11.8004 6.63547 11.8004C6.47229 11.8004 6.25949 11.7371 6.0531 11.4883C5.83472 9.84568 6.71786 8.19026 8.28015 7.43735C10.3016 6.46042 12.8302 7.17572 13.9181 9.02957L13.9997 9.16799L10.3344 9.17359L10.332 8.14065C9.76404 8.14065 9.27847 8.24386 8.84808 8.45029C7.73218 8.99036 7.11383 10.1049 7.27301 11.2923C7.2626 11.4739 7.07544 11.7011 6.81305 11.7755ZM13.9621 10.6882C14.1997 12.2828 13.3038 13.8486 11.7303 14.5791C11.1186 14.8612 10.476 15.0015 9.80243 15C8.30173 15 6.84265 14.2879 6.0827 13.0437L6.00031 12.9085L9.66565 12.9077L9.65524 13.871C10.194 13.9005 10.7095 13.8045 11.2015 13.583C12.295 13.0805 12.9246 12.0244 12.7806 10.933C12.7318 10.5522 12.8806 10.3722 13.015 10.2881C13.179 10.1809 13.4134 10.1713 13.6213 10.2617C13.8237 10.3498 13.9509 10.509 13.9621 10.6882Z").fill("#FFF");
+                this.ready1 = new kity.Path().setPathData("M15 0L15 13.125C15 14.1562 14.1562 15 13.125 15L0 15L15 0Z").fill("#a2a2a2");
                 this.ready2 = new kity.Path().setPathData("M9.82526 6.43452C9.65637 6.27337 9.31853 6.25689 9.12943 6.45504L3.49181 12.3629C3.30354 12.5602 3.33093 12.8938 3.4995 13.0546C3.66795 13.2154 4.007 13.2315 4.19533 13.0341L9.83282 7.12636C10.0219 6.92821 9.99377 6.59534 9.82526 6.43452ZM12.9886 10.3927C11.9961 9.44553 12.4506 8.96923 11.4582 8.02216C10.8852 7.47545 10.1442 7.36622 10.1442 7.36622L6.73755 10.9279C6.73755 10.9279 7.4823 11.0415 8.05522 11.5882C9.04768 12.5353 8.59319 13.0116 9.58571 13.9587C10.2066 14.5512 11.1945 14.7647 11.1945 14.7647L14.5968 11.1994C14.5968 11.1994 13.6096 10.9852 12.9886 10.3927Z").fill("#FFF");
-                this.addShapes([ this.ready1, this.ready2, this.pass1, this.pass2, this.fail1, this.fail2, this.fail3, this.solve1, this.solve2 ]);
+                this.block1 = new kity.Path().setPathData("M15 0L15 13.125C15 14.1562 14.1562 15 13.125 15L0 15L15 0Z").fill("#F4A21D");
+                this.block2 = new kity.Path().setPathData("M6.81305 11.7755C6.755 11.7921 6.69583 11.8004 6.63547 11.8004C6.47229 11.8004 6.25949 11.7371 6.0531 11.4883C5.83472 9.84568 6.71786 8.19026 8.28015 7.43735C10.3016 6.46042 12.8302 7.17572 13.9181 9.02957L13.9997 9.16799L10.3344 9.17359L10.332 8.14065C9.76404 8.14065 9.27847 8.24386 8.84808 8.45029C7.73218 8.99036 7.11383 10.1049 7.27301 11.2923C7.2626 11.4739 7.07544 11.7011 6.81305 11.7755ZM13.9621 10.6882C14.1997 12.2828 13.3038 13.8486 11.7303 14.5791C11.1186 14.8612 10.476 15.0015 9.80243 15C8.30173 15 6.84265 14.2879 6.0827 13.0437L6.00031 12.9085L9.66565 12.9077L9.65524 13.871C10.194 13.9005 10.7095 13.8045 11.2015 13.583C12.295 13.0805 12.9246 12.0244 12.7806 10.933C12.7318 10.5522 12.8806 10.3722 13.015 10.2881C13.179 10.1809 13.4134 10.1713 13.6213 10.2617C13.8237 10.3498 13.9509 10.509 13.9621 10.6882Z").fill("#FFF");
+                this.block3 = new kity.Path().setPathData("M7.20065 8.20192C7.46738 7.93297 7.90582 7.93297 8.17255 8.20025L12.7985 12.8242C13.0669 13.0915 13.0669 13.5308 12.8002 13.7981C12.5334 14.067 12.095 14.067 11.8283 13.7998L7.20065 9.17582C6.93396 8.90854 6.93228 8.47087 7.20065 8.20192").fill("#FFF");
+                this.running1 = new kity.Path().setPathData("M15 0L15 13.125C15 14.1562 14.1562 15 13.125 15L0 15L15 0Z").fill("#2b8cff");
+                this.running2 = new kity.Path().setPathData("M6.81305 11.7755C6.755 11.7921 6.69583 11.8004 6.63547 11.8004C6.47229 11.8004 6.25949 11.7371 6.0531 11.4883C5.83472 9.84568 6.71786 8.19026 8.28015 7.43735C10.3016 6.46042 12.8302 7.17572 13.9181 9.02957L13.9997 9.16799L10.3344 9.17359L10.332 8.14065C9.76404 8.14065 9.27847 8.24386 8.84808 8.45029C7.73218 8.99036 7.11383 10.1049 7.27301 11.2923C7.2626 11.4739 7.07544 11.7011 6.81305 11.7755ZM13.9621 10.6882C14.1997 12.2828 13.3038 13.8486 11.7303 14.5791C11.1186 14.8612 10.476 15.0015 9.80243 15C8.30173 15 6.84265 14.2879 6.0827 13.0437L6.00031 12.9085L9.66565 12.9077L9.65524 13.871C10.194 13.9005 10.7095 13.8045 11.2015 13.583C12.295 13.0805 12.9246 12.0244 12.7806 10.933C12.7318 10.5522 12.8806 10.3722 13.015 10.2881C13.179 10.1809 13.4134 10.1713 13.6213 10.2617C13.8237 10.3498 13.9509 10.509 13.9621 10.6882Z").fill("#FFF");
+                this.addShapes([ this.ready1, this.ready2, this.pass1, this.pass2, this.fail1, this.fail2, this.fail3, this.solve1, this.solve2, this.block1, this.block2, this.block3, this.running1, this.running2 ]);
             },
             setValue: function(value) {
                 this.ready1.setVisible(value == 1);
@@ -7892,6 +7994,11 @@ _p[65] = {
                 this.fail3.setVisible(value == 3);
                 this.solve1.setVisible(value == 4);
                 this.solve2.setVisible(value == 4);
+                this.block1.setVisible(value == 5);
+                this.block2.setVisible(value == 5);
+                this.block3.setVisible(value == 5);
+                this.running1.setVisible(value == 6);
+                this.running2.setVisible(value == 6);
             }
         });
         var StatusCommand = kity.createClass({
@@ -7899,20 +8006,15 @@ _p[65] = {
             execute: function(minder, status) {
                 var nodes = minder.getSelectedNodes();
                 nodes.forEach(function(node) {
-                    var curType = node.getData("type");
-                    if (curType == minder.getTypeMap().case.id) node.setData("status", status).render(); else if (curType == minder.getTypeMap().module.id) {
-                        node.getDescendants().forEach(function(child) {
-                            if (child.getData("type") == minder.getTypeMap().case.id) {
-                                child.setData("status", status).render();
-                            }
-                        });
-                    }
+                    node.setData("status", status).render();
+                    node.getDescendants().forEach(function(child) {
+                        child.setData("status", status).render();
+                    });
                 });
                 minder.layout(200);
             },
             queryState: function(minder) {
-                var node = minder.getSelectedNode();
-                return node && (node.getData("type") == minder.getTypeMap().module.id || node.getData("type") == minder.getTypeMap().case.id) ? 0 : -1;
+                return minder.getSelectedNodes().length > 0;
             },
             queryValue: function(minder) {
                 var node = minder.getSelectedNode();
@@ -7935,131 +8037,18 @@ _p[65] = {
                     update: function(icon, node, box) {
                         var data = node.getData("status");
                         if (!data) return;
+                        var b2 = node.getContentBox();
                         var paddingRight = node.getStyle("padding-right");
-                        var x = box.right;
-                        var y = box.top;
+                        var paddingBottom = node.getStyle("padding-bottom");
+                        var stroke = node.getStyle("selected-stroke-width");
+                        var x = box.x;
+                        var y = box.y;
                         icon.setValue(data);
-                        icon.setTranslate(x + paddingRight - icon.width / 2 - 2, y + icon.height / 2 - 2);
-                        return new kity.Box(x, y, 0, 0);
+                        icon.setTranslate(box.right + paddingRight - icon.width / 2 - stroke, box.bottom + paddingBottom - icon.width / 2 - stroke);
+                        return new kity.Box(0, 0, 0, 0);
                     }
                 })
             }
-        });
-    }
-};
-
-//src/module/story.js
-_p[66] = {
-    value: function(require, exports, module) {
-        var kity = _p.r(17);
-        var utils = _p.r(33);
-        var Minder = _p.r(19);
-        var MinderNode = _p.r(21);
-        var Command = _p.r(9);
-        var Module = _p.r(20);
-        var Renderer = _p.r(27);
-        var DEFAULT_BACKGROUND = "#ffffff";
-        Module.register("Jira", function() {
-            function getCommand(issueType) {
-                return {
-                    base: Command,
-                    execute: function(minder, story) {
-                        var nodes = minder.getSelectedNodes();
-                        nodes.forEach(function(node) {
-                            node.setData(issueType, story).render();
-                        });
-                        minder.layout(200);
-                    },
-                    queryValue: function(minder) {
-                        var node = minder.getSelectedNode();
-                        return node && node.getData(issueType) || null;
-                    },
-                    queryState: function(km) {
-                        var node = minder.getSelectedNode();
-                        return node && node.getData("type") == minder.getTypeMap().case.id ? 0 : -1;
-                    }
-                };
-            }
-            function getRender(issueType) {
-                return {
-                    base: Renderer,
-                    create: function(node) {
-                        var icon = new JiraIcon();
-                        icon.setIconVisible(node);
-                        return icon;
-                    },
-                    shouldRender: function(node) {
-                        return node.getData(issueType) && !node.getData("hideState") && !node.hide;
-                    },
-                    update: function(container, node, box) {
-                        var spaceRight = node.getStyle("space-right");
-                        var issue = node.getData(issueType);
-                        if (!issue) return;
-                        var icon = new JiraIcon();
-                        icon.setIconVisible(node);
-                        container.setTranslate(box.right + 15, 0);
-                        return new kity.Box({
-                            x: box.right + icon.width,
-                            y: Math.round(-icon.height / 2),
-                            width: spaceRight,
-                            height: icon.height
-                        });
-                    }
-                };
-            }
-            var JiraIcon = kity.createClass("JiraIcon", {
-                base: kity.Group,
-                constructor: function(value) {
-                    this.callBase();
-                    this.setWidth(40);
-                    this.setHeight(20);
-                    this.create();
-                    this.setId(utils.uuid("node_jira"));
-                    this.translate(.5, .5);
-                },
-                setSize: function(size) {
-                    this.width = this.height = size;
-                },
-                setWidth: function(size) {
-                    this.width = size;
-                },
-                setHeight: function(size) {
-                    this.height = size;
-                },
-                create: function() {
-                    this.story1 = new kity.Path().setTranslate(-10, -8).setPathData("M8.5 1.88806C8.5 0.845749 9.36301 0 10.4266 0L23.9203 0C24.9839 0 25.8469 0.845749 25.8469 1.88806L25.8469 15.1119C25.8469 16.1543 24.9839 17 23.9203 17L10.4266 17C10.1712 16.9999 9.92543 16.9519 9.68948 16.856C9.45352 16.7601 9.24522 16.6237 9.06461 16.4467C8.88399 16.2697 8.74477 16.0655 8.64696 15.8343C8.54913 15.603 8.50014 15.3623 8.5 15.1119L8.5 1.88806Z").fill("#36B37E");
-                    this.story2 = new kity.Path().setTranslate(-10, -8).setPathData("M13.3571 13.3025L13.3571 4.67289C13.3571 4.15755 13.7822 3.74 14.3058 3.74L19.9978 3.74C20.5214 3.74 20.9464 4.15755 20.9464 4.67289L20.9464 13.3025L17.1518 9.571L13.3571 13.3025Z").fill("#FFF");
-                    this.bug1 = new kity.Path().setTranslate(-10, -8).setPathData("M17 1.88806C17 0.845749 17.863 0 18.9266 0L32.4203 0C33.4839 0 34.3469 0.845749 34.3469 1.88806L34.3469 15.1119C34.3469 16.1543 33.4839 17 32.4203 17L18.9266 17C18.6712 16.9999 18.4255 16.9519 18.1895 16.856C17.9535 16.7601 17.7452 16.6237 17.5646 16.4467C17.384 16.2697 17.2448 16.0655 17.147 15.8343C17.0491 15.603 17.0001 15.3623 17 15.1119L17 1.88806Z").fill("#FF5630");
-                    //c<circle id="svg_3" cx="25.673462" cy="8.500000" r="4.250000" fill="#FFFFFF"/>
-                    this.bug2 = new kity.Circle(4.25, 16, -1).fill("#FFFFFF");
-                    this.view1 = new kity.Path().setTranslate(-10, -8).setPathData("M0 1.88806C0 0.845749 0.863007 0 1.92659 0L15.4203 0C16.4839 0 17.3469 0.845749 17.3469 1.88806L17.3469 15.1119C17.3469 16.1543 16.4839 17 15.4203 17L1.92659 17C1.67116 16.9999 1.42545 16.9519 1.18948 16.856C0.953522 16.7601 0.745224 16.6237 0.564606 16.4467C0.383987 16.2697 0.244766 16.0656 0.146942 15.8343C0.049118 15.6031 0.000137329 15.3623 0 15.1119L0 1.88806Z").fill("#8993A4");
-                    this.view2 = new kity.Path().setTranslate(-10, -8).setPathData("M8.84694 11.3262C9.20638 11.3262 9.55212 11.2589 9.88419 11.1241C10.2163 10.9893 10.5094 10.7973 10.7635 10.5482C11.0177 10.2992 11.2135 10.0119 11.3511 9.6865C11.4886 9.36108 11.5574 9.02224 11.5574 8.67C11.5574 8.31776 11.4886 7.97893 11.3511 7.6535C11.2135 7.32807 11.0177 7.04082 10.7635 6.79175C10.5094 6.54267 10.2163 6.35074 9.88419 6.21594C9.55212 6.08115 9.20638 6.01375 8.84694 6.01375C8.48752 6.01375 8.14177 6.08115 7.80969 6.21594C7.47763 6.35074 7.18451 6.54267 6.93036 6.79175C6.67621 7.04082 6.48035 7.32806 6.3428 7.6535C6.20526 7.97892 6.13649 8.31776 6.13649 8.67C6.13649 9.02224 6.20526 9.36108 6.3428 9.6865C6.48035 10.0119 6.67621 10.2992 6.93036 10.5482C7.18451 10.7973 7.47763 10.9893 7.80969 11.1241C8.14177 11.2589 8.48752 11.3262 8.84694 11.3262ZM8.84694 12.92C8.27185 12.92 7.71866 12.8122 7.18735 12.5965C6.65604 12.3808 6.18706 12.0737 5.78041 11.6752C5.37376 11.2767 5.06039 10.8171 4.84032 10.2964C4.62024 9.77572 4.51021 9.23358 4.51021 8.67C4.51021 8.10641 4.62024 7.56428 4.84032 7.04359C5.06039 6.52291 5.37376 6.06331 5.78041 5.66479C6.18706 5.26628 6.65604 4.95918 7.18735 4.74351C7.71866 4.52783 8.27185 4.42 8.84694 4.42C9.42203 4.42 9.97522 4.52783 10.5065 4.74351C11.0378 4.95918 11.5068 5.26628 11.9135 5.66479C12.3201 6.06331 12.6335 6.52291 12.8536 7.04359C13.0736 7.56428 13.1837 8.10641 13.1837 8.67C13.1837 9.23358 13.0736 9.77572 12.8536 10.2964C12.6335 10.8171 12.3201 11.2767 11.9135 11.6752C11.5068 12.0737 11.0378 12.3808 10.5065 12.5965C9.97522 12.8122 9.42203 12.92 8.84694 12.92Z").fill("#FFF");
-                    /*this.p1 = new kity.Path().setTranslate( - 10, -7).setPathData("m-0.21739,1.6079c0,-1.00766 0.81763,-1.82529 1.82529,-1.82529l12.78421,0c1.00766,0 1.82529,0.81763 1.82529,1.82529l0,12.78421c0,1.00766 -0.81763,1.82529 -1.82529,1.82529l-12.78421,0a1.82632,1.82632 0 0 1 -1.82529,-1.82529l0,-12.78421z").fill("#36B37E");
-                this.p2 = new kity.Path().setTranslate( - 10, -7).setPathData("m4.40489,12.62228l0,-8.34271c0,-0.49818 0.40265,-0.90186 0.89878,-0.90186l5.39266,0c0.49612,0 0.89878,0.40368 0.89878,0.90186l0,8.34271l-3.59511,-3.60743l-3.59511,3.60743z").fill("#FFFFFF");*/
-                    this.addShapes([ this.view1, this.view2, this.story1, this.story2, this.bug1, this.bug2 ]);
-                },
-                setIconVisible: function(node) {
-                    this.story1.setVisible(node.getData("story") ? true : false);
-                    this.story2.setVisible(node.getData("story") ? true : false);
-                    this.bug1.setVisible(node.getData("bug") ? true : false);
-                    this.bug2.setVisible(node.getData("bug") ? true : false);
-                    this.view1.setVisible(node.getData("view") ? true : false);
-                    this.view2.setVisible(node.getData("view") ? true : false);
-                }
-            });
-            var StoryCommand = kity.createClass("StoryCommand", getCommand("story"));
-            var BugCommand = kity.createClass("BugCommand", getCommand("bug"));
-            var ViewCommand = kity.createClass("ViewCommand", getCommand("view"));
-            return {
-                commands: {
-                    story: StoryCommand,
-                    bug: BugCommand,
-                    view: ViewCommand
-                },
-                renderers: {
-                    right: [ kity.createClass("StoryRenderer", getRender("story")), kity.createClass("BugRenderer", getRender("bug")), kity.createClass("ViewRenderer", getRender("view")) ]
-                }
-            };
         });
     }
 };
@@ -8496,10 +8485,11 @@ _p[69] = {
                 base: kity.Group,
                 constructor: function() {
                     this.callBase();
-                    var text, rect;
-                    rect = this.rect = new kity.Rect().setRadius(4);
-                    text = this.text = new kity.Text().setFontSize(11).setVerticalAlign("middle");
+                    var rect = this.rect = new kity.Rect().setRadius(4);
+                    var text = this.text = new kity.Text().setFontSize(11).setVerticalAlign("middle");
                     this.addShapes([ rect, text ]);
+                    this.setStyle("cursor", "pointer");
+                    this.addClass("node-type");
                 },
                 setValue: function(type) {
                     var paddingX = 5, paddingY = 2, borderRadius = 4;
@@ -8531,7 +8521,15 @@ _p[69] = {
             var TypeRenderer = kity.createClass("TypeRenderer", {
                 base: Renderer,
                 create: function(node) {
-                    return new kity.Group();
+                    var icon = new kity.Group();
+                    icon.on("mousedown", function(e) {
+                        var minder = node.getMinder();
+                        e.preventDefault();
+                        minder.fire("edittype", {
+                            node: node
+                        });
+                    });
+                    return icon;
                 },
                 shouldRender: function(node) {
                     return node.getData("type") && !node.getData("hideState") && !node.hide;
@@ -10277,11 +10275,12 @@ _p[85] = {
                 "main-space": 5,
                 "sub-color": "black",
                 "sub-background": "transparent",
-                "sub-stroke": "none",
+                "sub-stroke": hsl(h, 1, 1),
+                "sub-stroke-width": .1,
                 "sub-font-size": 12,
                 "sub-padding": compat ? [ 3, 5 ] : [ 5, 10 ],
                 "sub-margin": compat ? [ 4, 8 ] : [ 15, 20 ],
-                "sub-radius": 5,
+                "sub-radius": 3,
                 "sub-space": 5,
                 "connect-color": hsl(h, 37, 60),
                 "connect-width": 1,
@@ -10301,17 +10300,17 @@ _p[85] = {
             };
         }
         var plans = {
+            blue: 188,
             red: 0,
             soil: 25,
             green: 122,
-            blue: 188,
             purple: 246,
             pink: 334
         };
         var name;
         for (name in plans) {
-            theme.register("fresh-" + name, generate(plans[name]));
             theme.register("fresh-" + name + "-compat", generate(plans[name], true));
+            theme.register("fresh-" + name, generate(plans[name]));
         }
     }
 };

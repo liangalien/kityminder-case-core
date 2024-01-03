@@ -32,8 +32,8 @@ define(function(require, exports, module) {
 
             'sub-color': 'black',
             'sub-background': 'transparent',
-            'sub-stroke': hsl(h, 37, 60),
-            'sub-stroke-width': 0.5,
+            'sub-stroke': hsl(h, 1, 1),
+            'sub-stroke-width': 0.1,
             'sub-font-size': 12,
             'sub-padding': compat ? [3, 5] : [5, 10],
             'sub-margin': compat ? [4, 8] : [15, 20],
@@ -64,17 +64,17 @@ define(function(require, exports, module) {
     }
 
     var plans = {
+        blue: 188,
         red: 0,
         soil: 25,
         green: 122,
-        blue: 188,
         purple: 246,
         pink: 334
     };
     var name;
     for (name in plans) {
-        theme.register('fresh-' + name, generate(plans[name]));
         theme.register('fresh-' + name + '-compat', generate(plans[name], true));
+        theme.register('fresh-' + name, generate(plans[name]));
     }
 
 });
