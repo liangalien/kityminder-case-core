@@ -1,6 +1,6 @@
 /*!
  * ====================================================
- * Kity Minder Core For Case - v2.1.12 - 2024-01-03
+ * Kity Minder Core For Case - v2.1.13 - 2024-01-10
  * https://github.com/liangalien/kityminder-case-core
  * GitHub: git+https://github.com/liangalien/kityminder-case-core.git 
  * Copyright (c) 2024 shiqiangliang; Licensed 
@@ -860,17 +860,32 @@ _p[12] = {
                 function addChild(parent, node) {
                     parent.children.push(node);
                 }
-                function importChildren(node, children) {
+                function importChildren(node, children, type, curLevel, maxLevel) {
+                    var autoType = null;
+                    if (type == null) {
+                        //自动判断节点类型
+                        if (maxLevel >= 4 && curLevel <= maxLevel - 4) {
+                            // 层级大于等于4，除了后3个层级，其他都是目录类型
+                            autoType = 1;
+                        } else {
+                            autoType = 2;
+                        }
+                    }
                     for (var i = 0, l = children.length; i < l; i++) {
+                        var childType = type || autoType;
                         var childNode = minder.createNode(null, node);
                         childNode.setData("text", children[i].data.text || "");
-                        importChildren(childNode, children[i].children);
+                        childNode.setData("type", childType);
+                        var childrenType = autoType != 1 ? childType + 1 : null;
+                        importChildren(childNode, children[i].children, childrenType, curLevel + 1, maxLevel);
                     }
                 }
+                var levels = [];
                 while ((line = lines[i++]) !== undefined) {
                     line = line.replace(/&nbsp;/g, "");
                     if (isEmpty(line)) continue;
                     level = getLevel(line);
+                    levels.push(level);
                     jsonNode = getNode(line);
                     if (level === 0) {
                         jsonMap = {};
@@ -884,7 +899,8 @@ _p[12] = {
                         jsonMap[level] = jsonNode;
                     }
                 }
-                importChildren(node, children);
+                var maxLevel = Math.max.apply(null, levels);
+                importChildren(node, children, null, 0, maxLevel + 1);
                 minder.refresh();
             },
             /**
