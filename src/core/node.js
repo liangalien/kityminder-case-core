@@ -122,7 +122,7 @@ define(function(require, exports, module) {
         getType: function(type) {
             var caseTypeMap = this.getMinder().getTypeMap();
             var caseType = this.getData('type');
-            if (caseType == caseTypeMap.module.id) {
+            if (caseType == caseTypeMap.module.id || caseType == caseTypeMap.require.id) {
                 this.type = 'root';
             } else if (caseType == caseTypeMap.case.id) {
                 this.type = 'main';

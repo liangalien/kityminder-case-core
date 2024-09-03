@@ -151,7 +151,7 @@ define(function(require, exports, module) {
             if (parentType == typeMap.expect.id) { //父节点是预期结果，无法新增子节点
                 return null;
             }
-            else if (parentType == typeMap.module.id) { //父节点是模块，子节点应是用例
+            else if (parentType == typeMap.module.id || parentType == typeMap.require.id) { //父节点是模块，子节点应是用例
                 data = {
                     text: text || "用例名称",
                     type: typeMap.case.id,
@@ -211,9 +211,9 @@ define(function(require, exports, module) {
             var typeMap = km.getTypeMap();
             var data = {text: text};
             var nodeType = nodes[0].getData("type");
-            if (nodeType == typeMap.module.id || nodeType == typeMap.case.id) { //当前节点是模块或用例，父节点应是模块
+            if (nodeType == typeMap.module.id || nodeType == typeMap.require.id || nodeType == typeMap.case.id) { //当前节点是模块或用例，父节点应是模块
                 data = {
-                    text: text || "模块名称",
+                    text: text || "目录名称",
                     type: typeMap.module.id,
                 };
             }
@@ -266,7 +266,8 @@ define(function(require, exports, module) {
             var typeMap = km.getTypeMap();
             var siblingType = sibling.getData("type");
             if (!text) {
-                if (siblingType == typeMap.module.id) text = "模块名称";
+                if (siblingType == typeMap.module.id) text = "目录名称";
+                else if (siblingType == typeMap.require.id) text = "需求概述";
                 else if (siblingType == typeMap.case.id) text = "用例名称";
                 else if (siblingType == typeMap.step.id) text = "操作步骤";
                 else if (siblingType == typeMap.expect.id) text = "预期结果";
@@ -288,6 +289,43 @@ define(function(require, exports, module) {
         }
     });
 
+    /**
+     * @command AppendSameNode
+     * @description 新增需求节点
+     * @param {string|object} textOrData 要添加的节点的文本或数据
+     * @state
+     *    0: 当前有选中的节点
+     *   -1: 当前没有选中的节点
+     */
+    var AppendRequireCommand = kity.createClass('AppendRequireCommand', {
+        base: Command,
+        execute: function(km, text) {
+            var parent = km.getSelectedNode();
+            var typeMap = km.getTypeMap();
+            var data = {text: text || '需求概述', type: typeMap.require.id};
+            var parentType = parent.getData("type");
+            if (parentType != typeMap.module.id) { //父节点非目录，无法新增需求子节点
+                return null;
+            }
+
+            var node = km.createNode(data, parent);
+            km.select(node, true);
+            if (parent.isExpanded()) {
+                node.render();
+            }
+            else {
+                parent.expand();
+                parent.renderTree();
+            }
+            km.layout(600);
+
+        },
+        queryState: function(km) {
+            var selectedNode = km.getSelectedNode();
+            return selectedNode && selectedNode.getData('type') === km.getTypeMap().module.id ? 0 : -1;
+        }
+    });
+
     Module.register('NodeModule', function() {
         return {
             commands: {
@@ -296,6 +334,7 @@ define(function(require, exports, module) {
                 'RemoveNode': RemoveNodeCommand,
                 'AppendParentNode': AppendParentCommand,
                 'AppendNextNode': AppendNextCommand,
+                'AppendRequireNode': AppendRequireCommand,
                 'AppendPrevNode': AppendPrevCommand,
                 'AppendSameNode': AppendSameCommand
             },

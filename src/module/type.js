@@ -11,6 +11,7 @@ define(function(require, exports, module) {
             case: {id: 2, key: 'case', name: '用例', color: '#ffb3fb'},
             step: {id: 3, key: 'step', name: '步骤', color: '#ecffb3'},
             expect: {id: 4, key: 'expect', name: '预期', color: '#b3e5ff'},
+            require: {id: 11, key: 'require', name: '需求', color: '#98fdb4'}
         };
 
         var getTypeByID = function (typeId) {
