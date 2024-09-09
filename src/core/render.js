@@ -14,7 +14,7 @@ define(function(require, exports, module) {
         },
 
         shouldRender: function(node) {
-            return !node.isHide() && (node.parent ? !node.parent.isHide() : true);
+            return !node.isHide() && (node.parent ? (!node.parent.isHide() && !node.parent.isCollapsed()) : true);
         },
 
         watchChange: function(data) {
@@ -91,19 +91,34 @@ define(function(require, exports, module) {
 
                 if (!nodes.length) return;
 
+                var rendererCount = 0;
                 for (j = 0; j < nodes.length; j++) {
                     node = nodes[j];
-                    if (!node._renderers) {
+                    if (node.parent && node.parent.isCollapsed()) { // 父节点是收缩状态
+                        if (node._renderers) {
+
+                            node._renderers.forEach(function(renderer) {
+                                if (renderer.getRenderShape()) {
+                                    renderer.getRenderShape().remove();
+                                }
+                            })
+                        }
+                        node._renderers = undefined;
+                        node._contentBox = undefined;
+                        node._currentTextGroupBox = undefined;
+
+                        continue;
+                    } else if (!node._renderers) {
                         createRendererForNode(node, rendererClasses);
                     }
+
                     node._contentBox = new kity.Box();
                     this.fire('beforerender', {
                         node: node
                     });
+                    // 所有节点渲染器数量是一致的
+                    rendererCount = node._renderers.length;
                 }
-
-                // 所有节点渲染器数量是一致的
-                rendererCount = nodes[0]._renderers.length;
 
                 for (i = 0; i < rendererCount; i++) {
 
@@ -119,6 +134,9 @@ define(function(require, exports, module) {
 
                     for (j = 0; j < nodes.length; j++) {
                         node = nodes[j];
+                        if (!node._renderers)
+                            continue;
+
                         renderer = node._renderers[i];
 
                         // 合并盒子
@@ -163,8 +181,10 @@ define(function(require, exports, module) {
             },
 
             renderNode: function(node) {
+                console.log('renderNode', node.getText())
                 var rendererClasses = this._rendererClasses;
                 var i, latestBox, renderer;
+
 
                 if (!node._renderers) {
                     createRendererForNode(node, rendererClasses);

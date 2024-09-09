@@ -212,11 +212,13 @@ define(function(require, exports, module) {
             events: {
                 'layoutapply': function(e) {
                     var r = e.node.getRenderer('ExpanderRenderer');
-                    if (r.getRenderShape()) {
+                    if (r && r.getRenderShape()) {
                         r.update(r.getRenderShape(), e.node);
                     }
                 },
                 'beforerender': function(e) {
+                    console.log('beforerender', e.node.getText())
+
                     var node = e.node;
                     var visible = !node.parent || node.parent.isExpanded();
                     var minder = this;

@@ -82,26 +82,29 @@ define(function(require, exports, module) {
             nodes.forEach(function(node, index, nodes) {
                 var tbox = me.getTreeBox([node]);
 
-                var noteShape = node.getRenderer("NoteIconRenderer")._renderShape;
-                var size = {
-                    x: tbox.width,
-                    y: tbox.height + (noteShape && noteShape.node.getAttribute("display") != "none" ? noteShape.height : 0)
-                }[axis];
-                var offset = {
-                    x: tbox.left,
-                    y: tbox.top
-                }[axis];
+                var noteRenderer = node.getRenderer("NoteIconRenderer");
+                if (noteRenderer) {
+                    var noteShape = noteRenderer._renderShape;
+                    var size = {
+                        x: tbox.width,
+                        y: tbox.height + (noteShape && noteShape.node.getAttribute("display") != "none" ? noteShape.height : 0)
+                    }[axis];
+                    var offset = {
+                        x: tbox.left,
+                        y: tbox.top
+                    }[axis];
 
-                var matrix = node.getLayoutTransform();
+                    var matrix = node.getLayoutTransform();
 
-                if (axis == 'x') {
-                    matrix.translate(position - offset, 0);
-                } else {
-                    matrix.translate(0, position - offset);
+                    if (axis == 'x') {
+                        matrix.translate(position - offset, 0);
+                    } else {
+                        matrix.translate(0, position - offset);
+                    }
+                    position += size;
+                    if (nodes[index + 1])
+                        position += distance(node, nodes[index + 1], axis);
                 }
-                position += size;
-                if (nodes[index + 1])
-                    position += distance(node, nodes[index + 1], axis);
             });
             return position;
         },
